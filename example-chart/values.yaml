@@ -2,6 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Define the password variables using a Helm template function.
+# This generates a NEW password only if the release does not exist
+# (i.e., on 'helm install'). On 'helm upgrade', it re-uses the previous
+# value stored in the release history.
+mariadbPassword: {{ randAlphaNum 20 | quote }}
+
 mariadb:
   enabled: true
   image:
@@ -9,6 +15,10 @@ mariadb:
   auth:
     database: booklore
     username: booklore-user
+    # Use the explicitly set password for the main database user
+    password: {{ .Values.mariadbPassword | quote }}
+    # And the root user
+    rootPassword: {{ .Values.mariadbPassword | quote }}
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
